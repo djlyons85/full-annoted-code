@@ -26,9 +26,6 @@ library(tm)
 
 
 Data <- import("data_original.xlsx")
-
-
-Data <- import("Data.xlsx")
 #Data as imported from Quanteda 
 
 
@@ -489,14 +486,14 @@ ggplot(mainplot, aes(x = ref,y=means,ymin=low,ymax=hi,color=ref))+ facet_wrap(~T
   theme_bw()+geom_hline(yintercept=c(0), linetype="dashed")+
   scale_color_manual(values = c("#0072B2", "#D55E00","#52854C","#C4961A"),labels = c('Self-Quarantine','Release Detainees','NCAA Football','In-Person Ballots'))+
   scale_shape_manual(values = c(15,17,16,8),labels = c('Self-Quarantine','Release Detainees','NCAA Football','In-Person Ballots'))+
-  theme(axis.text.x = element_text(face = 'bold',size = 8),
-        plot.caption = element_text(face = "italic",size = 8),
-        axis.text.y = element_text(size = 7),
+  theme(axis.text.x = element_text(face = 'bold',size = 10),
+        plot.caption = element_text(face = "italic",size = 12),
+        axis.text.y = element_text(size = 12),
         plot.title = element_text(hjust = .5),
-        strip.text.x = element_text(size = 8),
+        strip.text.x = element_text(face = 'bold',size = 12),
         strip.background = element_rect(colour="white", fill="white"),
         panel.spacing.x = unit(2.5, "mm"),
-        legend.title = element_text(color = "white"), legend.text = element_text(size = 8))+
+        legend.title = element_text(color = "white"), legend.text = element_text(size = 12))+
   coord_flip()+ theme(legend.title = element_blank(),legend.position = "none") +theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
                                                                               ggsave('mainplot.jpeg',width = 7,height = 7)
