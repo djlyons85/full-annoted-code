@@ -366,26 +366,118 @@ Data$other<-ifelse(Data$ethnicity==7,1,0)
 #####Loading the Adjusted Data for Analysis
 dataclean<- Data
 
+###########################
+### demographics by groups
+###########################
+##
+###### Gender 
+## Recode
+dataclean$gender <- as.factor(dataclean$gender)
+dataclean$gender <- ifelse(dataclean$gender == "1", "M",
+                           ifelse(dataclean$gender == "2", "F", 
+                                  ifelse(dataclean$gender == "3", "Other", NA)))
 
+
+### Recode Political Party
+## party ID
+####  1-3 is democratic. 
+####  5 independent. 
+####  6-8 republicaa
+####  9- other/na/dont know. 
+dataclean$pid <- as.factor(dataclean$pid)
+dataclean$party <-ifelse (dataclean$pid == "1", "Democrat",
+                          ifelse(dataclean$pid =="2", "Democrat", 
+                                 ifelse(dataclean$pid == "3", "Democrat",
+                                        ifelse(dataclean$pid == "5", "Independent", 
+                                               ifelse(dataclean$pid == "6", "Republican",
+                                                      ifelse(dataclean$pid == "7", "Republican",
+                                                             ifelse(dataclean$pid == "8", "Republican", "Other")))))))
+
+
+
+
+
+#### Ethnicity
+dataclean$race <-ifelse (dataclean$ethnicity == "1", "White",
+                         ifelse(dataclean$ethnicity =="2", "Black", 
+                                ifelse(dataclean$ethnicity == "3", "Hispanic",
+                                       ifelse(dataclean$ethnicity == "4", "Asian", 
+                                              ifelse(dataclean$ethnicity == "5", "Native American",
+                                                     ifelse(dataclean$ethnicity == "6", "Middle Eastern", "Other"))))))
+
+
+
+
+### Partition by groups first 
+g1 <- dataclean[which(dataclean$group==1),]
+g2 <- dataclean[which(dataclean$group==2),]
+g3 <- dataclean[which(dataclean$group==3),]
+g4 <- dataclean[which(dataclean$group==4),]
+g5 <- dataclean[which(dataclean$group==5),]
+g6 <- dataclean[which(dataclean$group==6),]
+g7 <- dataclean[which(dataclean$group==7),]
+g8 <- dataclean[which(dataclean$group==8),]
+g9 <- dataclean[which(dataclean$group==9),]
+
+### Gender 
+prop.table(table(g1$gender))
+prop.table(table(g2$gender))
+prop.table(table(g3$gender))
+prop.table(table(g4$gender))
+prop.table(table(g5$gender))
+prop.table(table(g6$gender))
+prop.table(table(g7$gender))
+prop.table(table(g8$gender))
+prop.table(table(g9$gender))
+
+
+#### Party
+prop.table(table(g1$party))
+prop.table(table(g2$party))
+prop.table(table(g3$party))
+prop.table(table(g4$party))
+prop.table(table(g5$party))
+prop.table(table(g6$party))
+prop.table(table(g7$party))
+prop.table(table(g8$party))
+prop.table(table(g9$party))
+
+#### Ethnicity
+prop.table(table(g1$race))
+prop.table(table(g2$race))
+prop.table(table(g3$race))
+prop.table(table(g4$race))
+prop.table(table(g5$race))
+prop.table(table(g6$race))
+prop.table(table(g7$race))
+prop.table(table(g8$race))
+prop.table(table(g9$race))
+
+
+### For numeric variables 
+### ideology 
+
+dataclean %>% 
+  group_by(group)  %>% 
+  summarize(mean = mean(ideology, na.rm=TRUE), sd = sd(ideology, na.rm=TRUE))
+
+### education
+dataclean$education <- as.numeric(dataclean$education)
+dataclean %>% 
+  group_by(group) %>% 
+  summarize(mean = mean(education, na.rm=TRUE), sd = sd(education, na.rm=TRUE))
+
+
+#### age 
 table(dataclean$birth_year)
 summary(dataclean$birth_year)
 dataclean$birth_year <- as.numeric(dataclean$birth_year)
 dataclean$age <- 2020 - dataclean$birth_year
 summary(dataclean$age)
 
-
-## Education 
-dataclean$education <- as.factor(dataclean$education)
-dataclean$education <-ifelse (dataclean$education == "1", "No high school",
-                              ifelse(dataclean$education =="2", "High school", 
-                                     ifelse(dataclean$education == "3", "Some college w/degree or associate degree",
-                                            ifelse(dataclean$education == "4", "Some college w/degree or associate degree", 
-                                                   ifelse(dataclean$education == "5", "Bachelor's degree or higher",
-                                                          ifelse(dataclean$education == "6", "Bachelor's degree or higher", 
-                                                                 ifelse(dataclean$education == "7", "Bachelor's degree or higher", "Other")))))))
-
-table2 <- table(dataclean$education)
-prop.table(table2)
+dataclean %>% 
+  group_by(group) %>% 
+  summarize(median = median(age, na.rm=TRUE), sd = sd(age, na.rm=TRUE))
 
 ### Gender 
 dataclean$gender <- as.factor(dataclean$gender)
@@ -448,6 +540,9 @@ prop.table(table5)
 #value in a column by separating with '|'
 #BOOTNUM is the number of bootstrap samples to draw for creating confidence intervals
 
+##reload data to remove data type changes
+dataclean<- Data
+
 condinterval<-function(bootdata,ingroups,excludedgroups="zzz",listconditions=NA,bootnum){
   
   outcome<-rbind(rep(NA,12),rep(NA,12))
@@ -477,10 +572,6 @@ condinterval<-function(bootdata,ingroups,excludedgroups="zzz",listconditions=NA,
 
 ########################################################
 ######Figure 1 
-
-#####Reload to undo factor data type change
-dataclean<- Data
-
 data_figure1 <- dataclean %>% select(group,treatment1,treatment2,treatment3,treatment4)
 datagather <- data_figure1 %>% gather(key="treatment", value="value",treatment1,treatment2,treatment3,treatment4)
 
@@ -653,14 +744,7 @@ ggsave('interact.jpeg', width = 7, height = 7)
 ####comparison. The values in the list are one of the groups of values that will be compared
 ####listcompare is the same as list diff, except the list values are the other groups of
 ####independent variable values being compared to the listdiff values.
-bootdata<-dataclean
-m<-8L
-ingroups<-c(1,2,3,4)
-excludedgroups<-9
-listdiff <- list(pid=c(1,2,3))
-listcompare <- list(pid = c(6,7,8))
-bootnum <- 1000
-listconditions<-NA
+
 
 bygroups<-function(bootdata,ingroups,excludedgroups="zzz",listdiff,listcompare,listconditions=NA,bootnum){
   outcome<-rbind(rep(NA,12),rep(NA,12))
