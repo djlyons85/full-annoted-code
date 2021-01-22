@@ -477,6 +477,10 @@ condinterval<-function(bootdata,ingroups,excludedgroups="zzz",listconditions=NA,
 
 ########################################################
 ######Figure 1 
+
+#####Reload to undo factor data type change
+dataclean<- Data
+
 data_figure1 <- dataclean %>% select(group,treatment1,treatment2,treatment3,treatment4)
 datagather <- data_figure1 %>% gather(key="treatment", value="value",treatment1,treatment2,treatment3,treatment4)
 
